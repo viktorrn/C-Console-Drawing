@@ -11,7 +11,14 @@ typedef struct S_Vertex
     double x;
     double y;
     double z;
-} vertex;
+} Vertex;
+
+typedef struct S_Triangle
+{
+    Vertex p0;
+    Vertex p1;
+    Vertex p2;
+} Triangle;
 
 typedef struct S_Vec4
 {
@@ -21,20 +28,26 @@ typedef struct S_Vec4
     double w;
 } Vec4;
 
+typedef struct S_Vec2
+{
+    double x;
+    double y;
+} Vec2;
+
 typedef struct S_Camera
 {
-    vertex postion;
-    vertex rotation;
+    Vertex postion;
+    Vertex rotation;
 } Camera;
 
-typedef struct S_RoadPiece
-{
-    vertex postion;
-} roadPiece;
-
-typedef struct S_Matrix
+typedef struct S_Matrix4x4
 {
     double m[4][4];
-} Matrix;
+} Matrix4x4;
+
+typedef struct S_Matrix3x3
+{
+    double m[3][3];
+} Matrix3x3;
 
 #endif /* _structs_ */

@@ -6,14 +6,17 @@
 #include "structs.h"
 #include "matrixMath.h"
 
-#define ScreenWidth 64
-#define ScreenHeight 32
+#define ScreenWidth 64/8
+#define ScreenHeight 32/4
+#define PI 3.142f
 
-char  ScreenBuffer[ScreenWidth*ScreenHeight];
+const int BufferSize = ScreenWidth*ScreenHeight;
 
+void setValueOfBuffer(int x, int y, char*buffer);
 void drawBuffer(int w, int h, char* buffer);
 void clearBuffer(int size, char*buffer);
-
+void printVec4(Vec4*vec);
+void printMatrix(Matrix4x4 *mat);
 
 
 void init_camera(Camera* cam)
@@ -29,43 +32,53 @@ void init_camera(Camera* cam)
 
 int main()
 {
+    char ScreenBuffer[BufferSize];
     
     //Camera cam1;
     //init_camera(&cam1);
     double far = 20;
     double near = 0.1;
-    double fov = 90;
+    double nf = near-far;
+    double fov = PI/2;
     double top = 1;
-    double e = 1/(tan(fov/2));
+    double e = 1/(sin(fov/2)/cos(fov/2));
     double aspect = ScreenWidth/ScreenHeight;
 
-    Matrix mat1;
-    
-    printf("%d\n",&mat1);
-    setMatrix4x4Values(&mat1,e/aspect,0.0f,0.0f,0.0f,
-                             0.0f, e  ,0.0f,0.0f,
-                             0.0f,0.0f,far+near/(near-far),2*far/(near-far),
-                             0.0f,0.0f,-1,0.0f
+    Matrix4x4 ppm; //perspective projection matrix
+    setMatrix4x4Values(&ppm,e/aspect,0.0f,     0.0f,         0.0f,
+                             0.0f,      e,      0.0f,         0.0f,
+                             0.0f,    0.0f,  far+near/(nf), 2*far/(nf),
+                             0.0f,    0.0f,     -1.0f,           0.0f
                         ); 
-    Matrix mat2; 
+
+    Triangle chad = { {1,1,1}, {1,-1,1}, {1,0,1} };
+    Vec4 chadB = {chad.p0.x,chad.p0.y,chad.p0.z,1};
+
+    printVec4(&chadB);
+    transformVec4(&chadB,&ppm);
+    printVec4(&chadB);
+
+    Matrix4x4 mat1; 
+    setMatrix4x4Values(&mat1,2.0f,0.0f,0.0f,0.0f,
+                            0.0f,1.0f,0.0f,0.0f,
+                            0.0f,0.0f,2.0f,0.0f,
+                            0.0f,0.0f,0.0f,1.0f); 
+
+    Matrix4x4 mat2; 
     setMatrix4x4Values(&mat2,1.0f,0.0f,0.0f,0.0f,
                             0.0f,1.0f,0.0f,0.0f,
                             0.0f,0.0f,1.0f,0.0f,
                             0.0f,0.0f,0.0f,1.0f); 
+
+    Matrix4x4 mat3;
+    mat3 = multiplyMatricies4x4(&mat1,&mat2);
+    printMatrix(&mat3);
    
     //printf("declared stuff");
-    
-    Matrix mat3;
-    mat3 = multiplyMatricies( &mat1, &mat2); 
-
-    for(int y = 0; y < 4; y++)
-    {
-        for(int x = 0; x < 4; x++)
-        {
-            printf("%lf ",mat3.m[y][x]);
-        }
-        printf("\n");
-    }
+   /*  clearBuffer(BufferSize,ScreenBuffer);
+    setValueOfBuffer(0,0,ScreenBuffer);
+    drawBuffer(ScreenWidth,ScreenHeight,ScreenBuffer);
+    */
 
     return 0;
 }
@@ -75,8 +88,13 @@ void clearBuffer(int size, char* buffer)
     
     for(int i = 0; i < size; i++)
     {
-        buffer[i] = 0;
+        buffer[i] = ' ';
     }
+}
+
+void setValueOfBuffer(int x, int y, char* buffer)
+{
+    buffer[y*ScreenWidth+x] = '#';
 }
 
 void drawBuffer(int w, int h, char* buffer)
@@ -94,7 +112,24 @@ void drawBuffer(int w, int h, char* buffer)
     }
 }
 
-char dodge[1000] = 
+void printVec4(Vec4*vec)
+{
+    printf("vec: (%lf, %lf, %lf, %lf ) \n",vec->x,vec->y,vec->z,vec->w);
+}
+
+void printMatrix(Matrix4x4 *mat)
+{
+    for(int y = 0; y < 4; y++)
+    {
+        for(int x = 0; x < 4; x++)
+        {
+            printf("%lf ",mat->m[y][x]);
+        }
+        printf("\n");
+    }
+}
+
+char doge[1000] = 
 {
 '*','*','*','*','*','*','*','*','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
 '*','*','*','*','#','#','#','#',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ','#','#',' ',' ','#','#','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*',
