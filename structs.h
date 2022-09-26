@@ -6,19 +6,23 @@
 #ifndef structs_H
 #define structs_H
 
-typedef struct S_Vertex
+typedef struct S_Vec3
 {
     double x;
     double y;
     double z;
-} Vertex;
+} Vec3;
 
 typedef struct S_Triangle
 {
-    Vertex p0;
-    Vertex p1;
-    Vertex p2;
+    Vec3 p[3];
 } Triangle;
+
+typedef struct S_Mesh
+{
+    u_int8_t lenght;
+    Triangle tris[256];
+} Mesh;
 
 typedef struct S_Vec4
 {
@@ -28,16 +32,11 @@ typedef struct S_Vec4
     double w;
 } Vec4;
 
-typedef struct S_Vec2
-{
-    double x;
-    double y;
-} Vec2;
 
 typedef struct S_Camera
 {
-    Vertex postion;
-    Vertex rotation;
+    Vec3 postion;
+    Vec3 rotation;
 } Camera;
 
 typedef struct S_Matrix4x4

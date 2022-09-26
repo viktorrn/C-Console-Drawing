@@ -23,71 +23,87 @@ void setVector4(Vec4*vec, double s_x, double s_y, double s_z, double s_w)
 };
 
 
-void transformVec3(Vertex*vec, Matrix3x3* matrix)
+void transformVec3(Vec3*v_i, Vec3*v_o, Matrix3x3* matrix)
 {
-    Vec4 result;
-    result.x = vec->x * matrix->m[0][0] + vec->y * matrix->m[0][1] + vec->z * matrix->m[0][2];
-    result.y = vec->x * matrix->m[1][0] + vec->y * matrix->m[1][1] + vec->z * matrix->m[1][2];
-    result.z = vec->x * matrix->m[2][0] + vec->y * matrix->m[2][1] + vec->z * matrix->m[2][2];
-    memcpy(vec,&result,sizeof(Vertex));
+   
+    v_o->x = v_i->x * matrix->m[0][0] + v_i->y * matrix->m[0][1] + v_i->z * matrix->m[0][2];
+    v_o->y = v_i->x * matrix->m[1][0] + v_i->y * matrix->m[1][1] + v_i->z * matrix->m[1][2];
+    v_o->z = v_i->x * matrix->m[2][0] + v_i->y * matrix->m[2][1] + v_i->z * matrix->m[2][2];
+
 }
 
-void transformVec4(Vec4*vec, Matrix4x4* matrix)
+void transformVec4(Vec4*v_i,Vec4*v_o, Matrix4x4* matrix)
 {
-    Vec4 result;
-    result.x = vec->x * matrix->m[0][0] + vec->y * matrix->m[0][1] + vec->z * matrix->m[0][2] + vec->w * matrix->m[0][3];
-    result.y = vec->x * matrix->m[1][0] + vec->y * matrix->m[1][1] + vec->z * matrix->m[1][2] + vec->w * matrix->m[1][3];
-    result.z = vec->x * matrix->m[2][0] + vec->y * matrix->m[2][1] + vec->z * matrix->m[2][2] + vec->w * matrix->m[2][3];
-    result.w = vec->x * matrix->m[3][0] + vec->y * matrix->m[3][1] + vec->z * matrix->m[3][2] + vec->w * matrix->m[3][3];
-    memcpy(vec,&result,sizeof(Vec4));
+ 
+    v_o->x = v_i->x * matrix->m[0][0] + v_i->y * matrix->m[0][1] + v_i->z * matrix->m[0][2] + v_i->w * matrix->m[0][3];
+    v_o->y = v_i->x * matrix->m[1][0] + v_i->y * matrix->m[1][1] + v_i->z * matrix->m[1][2] + v_i->w * matrix->m[1][3];
+    v_o->z = v_i->x * matrix->m[2][0] + v_i->y * matrix->m[2][1] + v_i->z * matrix->m[2][2] + v_i->w * matrix->m[2][3];
+    v_o->w = v_i->x * matrix->m[3][0] + v_i->y * matrix->m[3][1] + v_i->z * matrix->m[3][2] + v_i->w * matrix->m[3][3];
+
 }
 
-Matrix3x3 multiplyMatricies3x3(Matrix3x3 *matrix_1,  Matrix3x3 *matrix_2)
+void projectionMatrixCalc(Vec3*v_i,Vec3*v_o, Matrix4x4* m)
+{
+    v_o->x = v_i->x * m->m[0][0] + v_i->y * m->m[0][1] + v_i->z * m->m[0][2];
+    v_o->y = v_i->x * m->m[1][0] + v_i->y * m->m[1][1] + v_i->z * m->m[1][2];
+    v_o->z = v_i->x * m->m[2][0] + v_i->y * m->m[2][1] + v_i->z * m->m[2][2];
+
+    double w = v_i->x * m->m[0][3] + v_i->y * m->m[1][3] + v_i->z * m->m[2][3] + m->m[3][3];
+
+    if(w != 0.0f)
+    {
+        v_o->x /= w;  v_o->y /= w;  v_o->z /= w;
+    }
+}
+
+Matrix3x3 multiplyMatricies3x3(Matrix3x3 *m_1,  Matrix3x3 *m_2)
 {
     Matrix3x3 resultMatrix;
     //row 1
-    resultMatrix.m[0][0] = matrix_1->m[0][0] * matrix_2->m[0][0];
-    resultMatrix.m[0][1] = matrix_1->m[0][1] * matrix_2->m[1][0];
-    resultMatrix.m[0][2] = matrix_1->m[0][2] * matrix_2->m[2][0];
+ //row 1
+    resultMatrix.m[0][0] = m_1->m[0][0] * m_2->m[0][0] + m_1->m[0][1] * m_2->m[1][0] + m_1->m[0][2] * m_2->m[2][0];
+    resultMatrix.m[0][1] = m_1->m[0][0] * m_2->m[0][1] + m_1->m[0][1] * m_2->m[1][1] + m_1->m[0][2] * m_2->m[2][1];
+    resultMatrix.m[0][2] = m_1->m[0][0] * m_2->m[0][2] + m_1->m[0][1] * m_2->m[1][2] + m_1->m[0][2] * m_2->m[2][2];
     //row 2
-    resultMatrix.m[1][0] = matrix_1->m[1][0] * matrix_2->m[0][1];
-    resultMatrix.m[1][1] = matrix_1->m[1][1] * matrix_2->m[1][1];
-    resultMatrix.m[1][2] = matrix_1->m[1][2] * matrix_2->m[2][1];
+    resultMatrix.m[1][0] = m_1->m[1][0] * m_2->m[0][0] + m_1->m[1][1] * m_2->m[1][0] + m_1->m[1][2] * m_2->m[2][0];
+    resultMatrix.m[1][1] = m_1->m[1][0] * m_2->m[0][1] + m_1->m[1][1] * m_2->m[1][1] + m_1->m[1][2] * m_2->m[2][1];
+    resultMatrix.m[1][2] = m_1->m[1][0] * m_2->m[0][2] + m_1->m[1][1] * m_2->m[1][2] + m_1->m[1][2] * m_2->m[2][2];
     //row 3
-    resultMatrix.m[2][0] = matrix_1->m[2][0] * matrix_2->m[0][2];
-    resultMatrix.m[2][1] = matrix_1->m[2][1] * matrix_2->m[1][2];
-    resultMatrix.m[2][2] = matrix_1->m[2][2] * matrix_2->m[2][2];
+    resultMatrix.m[2][0] = m_1->m[2][0] * m_2->m[0][0] + m_1->m[2][1] * m_2->m[1][0] + m_1->m[2][2] * m_2->m[2][0];
+    resultMatrix.m[2][1] = m_1->m[2][0] * m_2->m[0][1] + m_1->m[2][1] * m_2->m[1][1] + m_1->m[2][2] * m_2->m[2][1];
+    resultMatrix.m[2][2] = m_1->m[2][0] * m_2->m[0][2] + m_1->m[2][1] * m_2->m[1][2] + m_1->m[2][2] * m_2->m[2][2];
     //row 4
-    resultMatrix.m[3][0] = matrix_1->m[3][0] * matrix_2->m[0][3];
-    resultMatrix.m[3][1] = matrix_1->m[3][1] * matrix_2->m[1][3];
-    resultMatrix.m[3][2] = matrix_1->m[3][2] * matrix_2->m[2][3];
+    resultMatrix.m[3][0] = m_1->m[3][0] * m_2->m[0][0] + m_1->m[3][1] * m_2->m[1][0] + m_1->m[3][2] * m_2->m[2][0];
+    resultMatrix.m[3][1] = m_1->m[3][0] * m_2->m[0][1] + m_1->m[3][1] * m_2->m[1][1] + m_1->m[3][2] * m_2->m[2][1];
+    resultMatrix.m[3][2] = m_1->m[3][0] * m_2->m[0][2] + m_1->m[3][1] * m_2->m[1][2] + m_1->m[3][2] * m_2->m[2][2];
+
 
     return resultMatrix;
 }
 
-Matrix4x4 multiplyMatricies4x4(Matrix4x4 *matrix_1,  Matrix4x4 *matrix_2)
+Matrix4x4 multiplyMatricies4x4(Matrix4x4 *m_1,  Matrix4x4 *m_2)
 {
     Matrix4x4 resultMatrix;
     //row 1
-    resultMatrix.m[0][0] = matrix_1->m[0][0] * matrix_2->m[0][0] + matrix_1->m[0][1] * matrix_2->m[1][0] + matrix_1->m[0][2] * matrix_2->m[2][0] + matrix_1->m[0][3] * matrix_2->m[3][0];
-    resultMatrix.m[0][1] = matrix_1->m[0][0] * matrix_2->m[0][1] + matrix_1->m[0][1] * matrix_2->m[1][1] + matrix_1->m[0][2] * matrix_2->m[2][1] + matrix_1->m[0][3] * matrix_2->m[3][1];
-    resultMatrix.m[0][2] = matrix_1->m[0][0] * matrix_2->m[0][2] + matrix_1->m[0][1] * matrix_2->m[1][2] + matrix_1->m[0][2] * matrix_2->m[2][2] + matrix_1->m[0][3] * matrix_2->m[3][2];
-    resultMatrix.m[0][2] = matrix_1->m[0][0] * matrix_2->m[0][3] + matrix_1->m[0][1] * matrix_2->m[1][3] + matrix_1->m[0][2] * matrix_2->m[2][3] + matrix_1->m[0][3] * matrix_2->m[3][3];
+    resultMatrix.m[0][0] = m_1->m[0][0] * m_2->m[0][0] + m_1->m[0][1] * m_2->m[1][0] + m_1->m[0][2] * m_2->m[2][0] + m_1->m[0][3] * m_2->m[3][0];
+    resultMatrix.m[0][1] = m_1->m[0][0] * m_2->m[0][1] + m_1->m[0][1] * m_2->m[1][1] + m_1->m[0][2] * m_2->m[2][1] + m_1->m[0][3] * m_2->m[3][1];
+    resultMatrix.m[0][2] = m_1->m[0][0] * m_2->m[0][2] + m_1->m[0][1] * m_2->m[1][2] + m_1->m[0][2] * m_2->m[2][2] + m_1->m[0][3] * m_2->m[3][2];
+    resultMatrix.m[0][3] = m_1->m[0][0] * m_2->m[0][3] + m_1->m[0][1] * m_2->m[1][3] + m_1->m[0][2] * m_2->m[2][3] + m_1->m[0][3] * m_2->m[3][3];
     //row 2
-    resultMatrix.m[1][0] = matrix_1->m[1][0] * matrix_2->m[0][0] + matrix_1->m[1][1] * matrix_2->m[1][0] + matrix_1->m[1][2] * matrix_2->m[2][0] + matrix_1->m[1][3] * matrix_2->m[3][0];
-    resultMatrix.m[1][1] = matrix_1->m[1][0] * matrix_2->m[0][1] + matrix_1->m[1][1] * matrix_2->m[1][1] + matrix_1->m[1][2] * matrix_2->m[2][1] + matrix_1->m[1][3] * matrix_2->m[3][1];
-    resultMatrix.m[1][2] = matrix_1->m[1][0] * matrix_2->m[0][2] + matrix_1->m[1][1] * matrix_2->m[1][2] + matrix_1->m[1][2] * matrix_2->m[2][2] + matrix_1->m[1][3] * matrix_2->m[3][2];
-    resultMatrix.m[1][2] = matrix_1->m[1][0] * matrix_2->m[0][3] + matrix_1->m[1][1] * matrix_2->m[1][3] + matrix_1->m[1][2] * matrix_2->m[2][3] + matrix_1->m[1][3] * matrix_2->m[3][3];
+    resultMatrix.m[1][0] = m_1->m[1][0] * m_2->m[0][0] + m_1->m[1][1] * m_2->m[1][0] + m_1->m[1][2] * m_2->m[2][0] + m_1->m[1][3] * m_2->m[3][0];
+    resultMatrix.m[1][1] = m_1->m[1][0] * m_2->m[0][1] + m_1->m[1][1] * m_2->m[1][1] + m_1->m[1][2] * m_2->m[2][1] + m_1->m[1][3] * m_2->m[3][1];
+    resultMatrix.m[1][2] = m_1->m[1][0] * m_2->m[0][2] + m_1->m[1][1] * m_2->m[1][2] + m_1->m[1][2] * m_2->m[2][2] + m_1->m[1][3] * m_2->m[3][2];
+    resultMatrix.m[1][3] = m_1->m[1][0] * m_2->m[0][3] + m_1->m[1][1] * m_2->m[1][3] + m_1->m[1][2] * m_2->m[2][3] + m_1->m[1][3] * m_2->m[3][3];
     //row 3
-    resultMatrix.m[2][0] = matrix_1->m[2][0] * matrix_2->m[0][0] + matrix_1->m[2][1] * matrix_2->m[1][0] + matrix_1->m[2][2] * matrix_2->m[2][0] + matrix_1->m[2][3] * matrix_2->m[3][0];
-    resultMatrix.m[2][1] = matrix_1->m[2][0] * matrix_2->m[0][1] + matrix_1->m[2][1] * matrix_2->m[1][1] + matrix_1->m[2][2] * matrix_2->m[2][1] + matrix_1->m[2][3] * matrix_2->m[3][1];
-    resultMatrix.m[2][2] = matrix_1->m[2][0] * matrix_2->m[0][2] + matrix_1->m[2][1] * matrix_2->m[1][2] + matrix_1->m[2][2] * matrix_2->m[2][2] + matrix_1->m[2][3] * matrix_2->m[3][2];
-    resultMatrix.m[2][2] = matrix_1->m[2][0] * matrix_2->m[0][3] + matrix_1->m[2][1] * matrix_2->m[1][3] + matrix_1->m[2][2] * matrix_2->m[2][3] + matrix_1->m[2][3] * matrix_2->m[3][3];
+    resultMatrix.m[2][0] = m_1->m[2][0] * m_2->m[0][0] + m_1->m[2][1] * m_2->m[1][0] + m_1->m[2][2] * m_2->m[2][0] + m_1->m[2][3] * m_2->m[3][0];
+    resultMatrix.m[2][1] = m_1->m[2][0] * m_2->m[0][1] + m_1->m[2][1] * m_2->m[1][1] + m_1->m[2][2] * m_2->m[2][1] + m_1->m[2][3] * m_2->m[3][1];
+    resultMatrix.m[2][2] = m_1->m[2][0] * m_2->m[0][2] + m_1->m[2][1] * m_2->m[1][2] + m_1->m[2][2] * m_2->m[2][2] + m_1->m[2][3] * m_2->m[3][2];
+    resultMatrix.m[2][3] = m_1->m[2][0] * m_2->m[0][3] + m_1->m[2][1] * m_2->m[1][3] + m_1->m[2][2] * m_2->m[2][3] + m_1->m[2][3] * m_2->m[3][3];
     //row 4
-    resultMatrix.m[3][0] = matrix_1->m[3][0] * matrix_2->m[0][0] + matrix_1->m[3][1] * matrix_2->m[1][0] + matrix_1->m[3][2] * matrix_2->m[2][0] + matrix_1->m[3][3] * matrix_2->m[3][0];
-    resultMatrix.m[3][1] = matrix_1->m[3][0] * matrix_2->m[0][1] + matrix_1->m[3][1] * matrix_2->m[1][1] + matrix_1->m[3][2] * matrix_2->m[2][1] + matrix_1->m[3][3] * matrix_2->m[3][1];
-    resultMatrix.m[3][2] = matrix_1->m[3][0] * matrix_2->m[0][2] + matrix_1->m[3][1] * matrix_2->m[1][2] + matrix_1->m[3][2] * matrix_2->m[2][2] + matrix_1->m[3][3] * matrix_2->m[3][2];
-    resultMatrix.m[3][2] = matrix_1->m[3][0] * matrix_2->m[0][3] + matrix_1->m[3][1] * matrix_2->m[1][3] + matrix_1->m[3][2] * matrix_2->m[2][3] + matrix_1->m[3][3] * matrix_2->m[3][3];
+    resultMatrix.m[3][0] = m_1->m[3][0] * m_2->m[0][0] + m_1->m[3][1] * m_2->m[1][0] + m_1->m[3][2] * m_2->m[2][0] + m_1->m[3][3] * m_2->m[3][0];
+    resultMatrix.m[3][1] = m_1->m[3][0] * m_2->m[0][1] + m_1->m[3][1] * m_2->m[1][1] + m_1->m[3][2] * m_2->m[2][1] + m_1->m[3][3] * m_2->m[3][1];
+    resultMatrix.m[3][2] = m_1->m[3][0] * m_2->m[0][2] + m_1->m[3][1] * m_2->m[1][2] + m_1->m[3][2] * m_2->m[2][2] + m_1->m[3][3] * m_2->m[3][2];
+    resultMatrix.m[3][3] = m_1->m[3][0] * m_2->m[0][3] + m_1->m[3][1] * m_2->m[1][3] + m_1->m[3][2] * m_2->m[2][3] + m_1->m[3][3] * m_2->m[3][3];
 
     return resultMatrix;
 }

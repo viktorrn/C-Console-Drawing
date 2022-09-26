@@ -23,11 +23,12 @@ void setMatrix3x3Values(Matrix3x3* mat,
 
 void setVector4(Vec4*vec, double s_x, double s_y, double s_z, double s_w);
 
-void transformVec4(Vec4*vec, Matrix4x4* matrix);
+void transformVec4(Vec4*v_i,Vec4*v_o, Matrix4x4* matrix);
 Matrix4x4 multiplyMatricies4x4(Matrix4x4 *matrix_1, Matrix4x4 *matrix_2);
 
-void transformVec3(Vertex*vec, Matrix3x3* matrix);
+void transformVec3(Vec3*v_i,Vec3*v_o, Matrix3x3* matrix);
 Matrix3x3 multiplyMatricies3x3(Matrix3x3 *matrix_1, Matrix3x3 *matrix_2);
 
+void projectionMatrixCalc(Vec3*v_i,Vec3*v_o, Matrix4x4* matrix);
 
 #endif /* _matrixMath_H */
