@@ -31,4 +31,9 @@ Matrix3x3 multiplyMatricies3x3(Matrix3x3 *matrix_1, Matrix3x3 *matrix_2);
 
 void projectionMatrixCalc(Vec3*v_i,Vec3*v_o, Matrix4x4* matrix);
 
+Matrix3x3 getRotationMatrixXYZ(double a, double b, double y);
+Matrix3x3 getRotationMatrixX(double a);
+Matrix3x3 getRotationMatrixY(double a);
+Matrix3x3 getRotationMatrixZ(double a);
+
 #endif /* _matrixMath_H */

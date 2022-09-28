@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include "structs.h"
 #include "matrixMath.h"
 
@@ -40,10 +41,10 @@ int main()
 
     //perspective projection matrix
 
-    double far = 2;
+    double far = 20;
     double near = 0.1;
     double nf = near-far;
-    double fov = PI/2;
+    double fov = PI/4;
 
     double top = 1;
     double e = 1/( sin(fov/2) / cos(fov/2) );
@@ -68,29 +69,38 @@ int main()
     GameMesh.lenght = 0;
     memset(&GameMesh.tris,0,sizeof(GameMesh.tris));
     initTestCube(&GameMesh);
-
-
-    //while(1)
+    int active = 1;
+    double time = 0;
+    while(active)
     {
-        Triangle tri, triP; 
+        Triangle tri, triRot, triP; 
+        Matrix3x3 rotationMatrixY = getRotationMatrixX(PI);
+        Matrix3x3 rotationMatrixZ = getRotationMatrixZ(time);
+        Matrix3x3 sumRotaion = multiplyMatricies3x3(&rotationMatrixY,&rotationMatrixZ);
+        //Vec3
 
         for(int i = 0; i < GameMesh.lenght;i++ )
         {
         
             tri = GameMesh.tris[i];
         
-            triP.p[0].z += 2;
-            triP.p[1].z += 2;
-            triP.p[2].z += 2;
+            transformVec3( &tri.p[0],&triRot.p[0],&rotationMatrixY);
+            transformVec3( &tri.p[1],&triRot.p[1],&rotationMatrixY);
+            transformVec3( &tri.p[2],&triRot.p[2],&rotationMatrixY);
 
-            projectionMatrixCalc(&tri.p[0],&triP.p[0],&ppm);
-            projectionMatrixCalc(&tri.p[1],&triP.p[1],&ppm);
-            projectionMatrixCalc(&tri.p[2],&triP.p[2],&ppm);
+            triRot.p[0].z += 3;
+            triRot.p[1].z += 3;
+            triRot.p[2].z += 3;
+
+            projectionMatrixCalc(&triRot.p[0],&triP.p[0],&ppm);
+            projectionMatrixCalc(&triRot.p[1],&triP.p[1],&ppm);
+            projectionMatrixCalc(&triRot.p[2],&triP.p[2],&ppm);
+            
 
             // move
             triP.p[0].x += 1.0f; triP.p[0].y += 1.0f;
             triP.p[1].x += 1.0f; triP.p[1].y += 1.0f;
-            triP.p[2].x += 1.0f; triP.p[2].y += 1.0f;
+            triP.p[2].x += 1.0f; triP.p[2].y += 1.0f; 
 
             // scale
             triP.p[0].x *= 0.5f*(double)ScreenWidth; 
@@ -106,12 +116,17 @@ int main()
             
             setValueOfBuffer((int)(triP.p[0].x+0.5f),(int)(triP.p[0].y+0.5f),ScreenBuffer);
             setValueOfBuffer((int)(triP.p[1].x+0.5f),(int)(triP.p[1].y+0.5f),ScreenBuffer);
-            //setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
+            setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
 
         }
- 
+    
     drawBuffer(ScreenWidth,ScreenHeight,ScreenBuffer);
+    clearBuffer(ScreenHeight*ScreenWidth,ScreenBuffer);
 
+    clock_t before = clock();
+    int msec = 0;
+    while((double)(clock() - before) / CLOCKS_PER_SEC < 0.125){};
+    time+= 0.05f;
     }
     
     return 0;

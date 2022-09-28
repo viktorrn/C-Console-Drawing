@@ -73,9 +73,6 @@ Matrix3x3 multiplyMatricies3x3(Matrix3x3 *m_1,  Matrix3x3 *m_2)
     resultMatrix.m[2][1] = m_1->m[2][0] * m_2->m[0][1] + m_1->m[2][1] * m_2->m[1][1] + m_1->m[2][2] * m_2->m[2][1];
     resultMatrix.m[2][2] = m_1->m[2][0] * m_2->m[0][2] + m_1->m[2][1] * m_2->m[1][2] + m_1->m[2][2] * m_2->m[2][2];
     //row 4
-    resultMatrix.m[3][0] = m_1->m[3][0] * m_2->m[0][0] + m_1->m[3][1] * m_2->m[1][0] + m_1->m[3][2] * m_2->m[2][0];
-    resultMatrix.m[3][1] = m_1->m[3][0] * m_2->m[0][1] + m_1->m[3][1] * m_2->m[1][1] + m_1->m[3][2] * m_2->m[2][1];
-    resultMatrix.m[3][2] = m_1->m[3][0] * m_2->m[0][2] + m_1->m[3][1] * m_2->m[1][2] + m_1->m[3][2] * m_2->m[2][2];
 
 
     return resultMatrix;
@@ -106,6 +103,83 @@ Matrix4x4 multiplyMatricies4x4(Matrix4x4 *m_1,  Matrix4x4 *m_2)
     resultMatrix.m[3][3] = m_1->m[3][0] * m_2->m[0][3] + m_1->m[3][1] * m_2->m[1][3] + m_1->m[3][2] * m_2->m[2][3] + m_1->m[3][3] * m_2->m[3][3];
 
     return resultMatrix;
+}
+
+Matrix3x3 getRotationMatrixXYZ(double a, double b, double y)
+{
+   Matrix3x3 m;
+   //row 1
+   m.m[0][0] = cos(b)*cos(y); 
+   m.m[0][1] = sin(a)*sin(b)*cos(y) - cos(a)*sin(y);
+   m.m[0][2] = sin(a)*sin(b)*cos(y) + sin(a)*sin(y);
+     //row 2
+   m.m[1][0] = cos(b)*sin(y); 
+   m.m[1][1] = sin(a)*sin(b)*sin(y) + cos(a)*cos(y);
+   m.m[1][2] = cos(a)*sin(b)*sin(y) - sin(a)*cos(y);
+        //row 2
+   m.m[2][0] = -sin(b);
+   m.m[2][1] = sin(a)*cos(b);
+   m.m[2][2] = cos(a)*cos(b);
+  
+   return m; 
+}
+
+
+Matrix3x3 getRotationMatrixX(double a)
+{
+   Matrix3x3 m;
+   //row 1
+   m.m[0][0] = 1;
+   m.m[0][1] = 0;
+   m.m[0][2] = 0;
+     //row 2
+   m.m[1][0] = 0; 
+   m.m[1][1] = cos(a);
+   m.m[1][2] = -sin(a);
+        //row 2
+   m.m[2][0] = 0;
+   m.m[2][1] = sin(a);
+   m.m[2][2] = cos(a);
+  
+   return m; 
+}
+
+Matrix3x3 getRotationMatrixY(double a)
+{
+   Matrix3x3 m;
+   //row 1
+   m.m[0][0] = cos(a);
+   m.m[0][1] = 0;
+   m.m[0][2] = sin(a);
+     //row 2
+   m.m[1][0] = 0; 
+   m.m[1][1] = a;
+   m.m[1][2] = 0;
+        //row 2
+   m.m[2][0] = -sin(a);
+   m.m[2][1] = 0;
+   m.m[2][2] = cos(a);
+  
+   return m; 
+}
+
+Matrix3x3 getRotationMatrixZ(double a)
+{
+   Matrix3x3 m;
+   //row 1
+   m.m[0][0] = cos(a);
+   m.m[0][1] = -sin(a);
+   m.m[0][2] = 0;   
+     //row 2
+   m.m[1][0] = sin(a); 
+   m.m[1][1] = -sin(a);
+   m.m[1][2] = 0;
+        //row 2
+   m.m[2][0] = 0;
+   m.m[2][1] = 0;
+   m.m[2][2] = 1;
+  
+   return m; 
 }
 
 
