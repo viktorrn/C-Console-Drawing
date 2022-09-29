@@ -7,7 +7,7 @@
 #include "structs.h"
 #include "matrixMath.h"
 
-#define ScreenWidth 64
+#define ScreenWidth 48
 #define ScreenHeight 32
 #define PI 3.142f
 
@@ -20,7 +20,7 @@ void printVec4(Vec4*vec);
 void printVec3(Vec3*vec);
 void printMatrix(Matrix4x4 *mat);
 void initTestCube(Mesh*GameMesh);
-void drawLine(int x0, int y0, int x1, int y1);
+void drawLine(float x0, float y0, float x1, float y1, char*buffer);
 
 
 void init_camera(Camera* cam)
@@ -40,28 +40,21 @@ int main()
     clearBuffer(BufferSize, ScreenBuffer);
 
     //perspective projection matrix
+    double fov = PI/2;
+    double fNear = 0.1f;
+	double fFar = 750.0f;
+	double aspect= (double)ScreenWidth / (double)ScreenHeight;
+	double fFovRad = 1.0f / tanf(fov/2);
 
-    double far = 20;
-    double near = 0.1;
-    double nf = near-far;
-    double fov = PI/4;
-
-    double top = 1;
-    double e = 1/( sin(fov/2) / cos(fov/2) );
-    printf("%lf \n", e);
-
-    double aspect = ScreenWidth/ScreenHeight;
-
-     printf("%lf \n", aspect);
 
     Matrix4x4 ppm; 
-    setMatrix4x4Values(&ppm,e/aspect,0.0f,     0.0f,         0.0f,
-                             0.0f,      e,      0.0f,         0.0f,
-                             0.0f,    0.0f,  far+near/(nf), 2*far/(nf),
-                             0.0f,    0.0f,     -1.0f,           0.0f
+    setMatrix4x4Values(&ppm,fFovRad*aspect,  0.0f,     0.0f,                0.0f,
+                             0.0f,          fFovRad,   0.0f,                0.0f,
+                             0.0f,           0.0f,  (fFar)/(fFar-fNear), (-fFar * fNear) / (fFar-fNear),
+                             0.0f,           0.0f,     1.0f,                0.0f
                         ); 
 
-    printMatrix(&ppm);
+
 
 
 
@@ -74,9 +67,9 @@ int main()
     while(active)
     {
         Triangle tri, triRot, triP; 
-        Matrix3x3 rotationMatrixY = getRotationMatrixX(PI);
-        Matrix3x3 rotationMatrixZ = getRotationMatrixZ(time);
-        Matrix3x3 sumRotaion = multiplyMatricies3x3(&rotationMatrixY,&rotationMatrixZ);
+        Matrix3x3 resultMatrix;
+        Matrix3x3 rotationMatrix = getRotationMatrixXYZ(time,time,0);
+        //sumRotaion = multiplyMatricies3x3(&sumRotaion)
         //Vec3
 
         for(int i = 0; i < GameMesh.lenght;i++ )
@@ -84,13 +77,13 @@ int main()
         
             tri = GameMesh.tris[i];
         
-            transformVec3( &tri.p[0],&triRot.p[0],&rotationMatrixY);
-            transformVec3( &tri.p[1],&triRot.p[1],&rotationMatrixY);
-            transformVec3( &tri.p[2],&triRot.p[2],&rotationMatrixY);
+            transformVec3( &tri.p[0],&triRot.p[0],&rotationMatrix);
+            transformVec3( &tri.p[1],&triRot.p[1],&rotationMatrix);
+            transformVec3( &tri.p[2],&triRot.p[2],&rotationMatrix);
 
-            triRot.p[0].z += 3;
-            triRot.p[1].z += 3;
-            triRot.p[2].z += 3;
+            triRot.p[0].z += 15;
+            triRot.p[1].z += 15;
+            triRot.p[2].z += 15;
 
             projectionMatrixCalc(&triRot.p[0],&triP.p[0],&ppm);
             projectionMatrixCalc(&triRot.p[1],&triP.p[1],&ppm);
@@ -98,25 +91,22 @@ int main()
             
 
             // move
-            triP.p[0].x += 1.0f; triP.p[0].y += 1.0f;
-            triP.p[1].x += 1.0f; triP.p[1].y += 1.0f;
-            triP.p[2].x += 1.0f; triP.p[2].y += 1.0f; 
+            triP.p[0].x += 1.20f; triP.p[0].y += 1.0f;
+            triP.p[1].x += 1.20f; triP.p[1].y += 1.0f;
+            triP.p[2].x += 1.20f; triP.p[2].y += 1.0f; 
 
             // scale
-            triP.p[0].x *= 0.5f*(double)ScreenWidth; 
-            triP.p[0].y *= 0.5f*(double)ScreenHeight; 
-            triP.p[1].x *= 0.5f*(double)ScreenWidth; 
-            triP.p[1].y *= 0.5f*(double)ScreenHeight; 
-            triP.p[2].x *= 0.5f*(double)ScreenWidth; 
-            triP.p[2].y *= 0.5f*(double)ScreenHeight; 
-
-            //printVec3(&triP.p[0]);
-            //printVec3(&triP.p[1]);
-            //printVec3(&triP.p[2]);
+            triP.p[0].x *= 16; 
+            triP.p[0].y *= 16; 
+            triP.p[1].x *= 16; 
+            triP.p[1].y *= 16; 
+            triP.p[2].x *= 16; 
+            triP.p[2].y *= 16; 
             
             setValueOfBuffer((int)(triP.p[0].x+0.5f),(int)(triP.p[0].y+0.5f),ScreenBuffer);
-            setValueOfBuffer((int)(triP.p[1].x+0.5f),(int)(triP.p[1].y+0.5f),ScreenBuffer);
+            //setValueOfBuffer((int)(triP.p[1].x+0.5f),(int)(triP.p[1].y+0.5f),ScreenBuffer);
             setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
+            //drawLine(triP.p[0].x,triP.p[0].y,triP.p[2].x,triP.p[2].y,ScreenBuffer);
 
         }
     
@@ -126,14 +116,45 @@ int main()
     clock_t before = clock();
     int msec = 0;
     while((double)(clock() - before) / CLOCKS_PER_SEC < 0.125){};
-    time+= 0.05f;
+    time+= 0.025f;
     }
     
     return 0;
 }
 
-void drawLine(int x0, int y0, int x1, int y1)
+void drawLine(float x0, float y0, float x1, float y1, char*buffer)
 {
+    printf("in draw line %f %f %f %f \n",x0,y0,x1,y0);
+    float yk = 1, xk = 1;
+    if(x1-x0 != 0)
+        yk = (y1 - y0) / ( x1 - x0);
+    if(y1-y0 != 0)
+        xk = (x1 - x0) / (y1 - y0);
+
+   // printf("line yk: %f xk %f \n",yk,xk);
+
+    if(xk > yk)
+    {
+        for(float x = x0, y = 0; x != x1; x++)
+        {
+           
+            
+            y = (xk*(x-x1) + y1);
+            printf("in draw line %f , %f \n",x,y);
+            setValueOfBuffer((int)x,(int)y,buffer);
+        }
+    }
+    else
+    {
+        for(float y = y0, x = 0; y != y1; y++)
+        {
+            
+            x = (yk*(y-y1) + x1);
+            printf("in draw line %f , %f \n",x,y);
+            setValueOfBuffer((int)x,(int)y,buffer);
+        }
+    }
+
 
 }
 
@@ -148,7 +169,7 @@ void clearBuffer(int size, char* buffer)
 
 void setValueOfBuffer(int x, int y, char* buffer)
 {
-    if(y*ScreenWidth+x < ScreenHeight*ScreenWidth && y*ScreenWidth+x >= 0)
+    if(x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
     buffer[y*ScreenWidth+x] = '#';
 }
 
