@@ -79,9 +79,9 @@ int main()
         
             tri = GameMesh.tris[i];
         
-            triP.p[0].z += 2;
-            triP.p[1].z += 2;
-            triP.p[2].z += 2;
+            triP.p[0].z -= 4;
+            triP.p[1].z -= 4;
+            triP.p[2].z -= 4;
 
             projectionMatrixCalc(&tri.p[0],&triP.p[0],&ppm);
             projectionMatrixCalc(&tri.p[1],&triP.p[1],&ppm);
@@ -106,7 +106,7 @@ int main()
             
             setValueOfBuffer((int)(triP.p[0].x+0.5f),(int)(triP.p[0].y+0.5f),ScreenBuffer);
             setValueOfBuffer((int)(triP.p[1].x+0.5f),(int)(triP.p[1].y+0.5f),ScreenBuffer);
-            //setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
+            setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
 
         }
  
