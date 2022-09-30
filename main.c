@@ -11,7 +11,7 @@
 #define ScreenHeight 32
 #define PI 3.142f
 
-const int BufferSize = ScreenWidth*ScreenHeight;
+const int BufferSize = (ScreenWidth+1)*ScreenHeight;
 
 void setValueOfBuffer(int x, int y, char*buffer);
 void drawBuffer(int w, int h, char* buffer);
@@ -21,6 +21,10 @@ void printVec3(Vec3*vec);
 void printMatrix(Matrix4x4 *mat);
 void initTestCube(Mesh*GameMesh);
 void drawLine(float x0, float y0, float x1, float y1, char*buffer);
+
+int sign(int x) {
+    return (x > 0) - (x < 0);
+}
 
 
 void init_camera(Camera* cam)
@@ -72,7 +76,7 @@ int main()
         //sumRotaion = multiplyMatricies3x3(&sumRotaion)
         //Vec3
 
-        for(int i = 0; i < GameMesh.lenght;i++ )
+        /* for(int i = 0; i < GameMesh.lenght;i++ )
         {
         
             tri = GameMesh.tris[i];
@@ -81,9 +85,9 @@ int main()
             transformVec3( &tri.p[1],&triRot.p[1],&rotationMatrix);
             transformVec3( &tri.p[2],&triRot.p[2],&rotationMatrix);
 
-            triRot.p[0].z += 15;
-            triRot.p[1].z += 15;
-            triRot.p[2].z += 15;
+            triRot.p[0].z += 20;
+            triRot.p[1].z += 20;
+            triRot.p[2].z += 20;
 
             projectionMatrixCalc(&triRot.p[0],&triP.p[0],&ppm);
             projectionMatrixCalc(&triRot.p[1],&triP.p[1],&ppm);
@@ -108,15 +112,17 @@ int main()
             setValueOfBuffer((int)(triP.p[2].x+0.5f),(int)(triP.p[2].y+0.5f),ScreenBuffer);
             //drawLine(triP.p[0].x,triP.p[0].y,triP.p[2].x,triP.p[2].y,ScreenBuffer);
 
-        }
+        } */
     
+    drawLine(3,7,13,7,ScreenBuffer);
+
     drawBuffer(ScreenWidth,ScreenHeight,ScreenBuffer);
     clearBuffer(ScreenHeight*ScreenWidth,ScreenBuffer);
 
     clock_t before = clock();
     int msec = 0;
-    while((double)(clock() - before) / CLOCKS_PER_SEC < 0.125){};
-    time+= 0.025f;
+    while((double)(clock() - before) / CLOCKS_PER_SEC < 1/16){};
+    time+= 0.0125f;
     }
     
     return 0;
@@ -124,38 +130,27 @@ int main()
 
 void drawLine(float x0, float y0, float x1, float y1, char*buffer)
 {
-    printf("in draw line %f %f %f %f \n",x0,y0,x1,y0);
+    //printf("in draw line %f %f %f %f \n",x0,y0,x1,y0);
     float yk = 1, xk = 1;
     if(x1-x0 != 0)
         yk = (y1 - y0) / ( x1 - x0);
     if(y1-y0 != 0)
         xk = (x1 - x0) / (y1 - y0);
-
-   // printf("line yk: %f xk %f \n",yk,xk);
-
-    if(xk > yk)
-    {
-        for(float x = x0, y = 0; x != x1; x++)
-        {
-           
-            
-            y = (xk*(x-x1) + y1);
-            printf("in draw line %f , %f \n",x,y);
-            setValueOfBuffer((int)x,(int)y,buffer);
+  
+    if(yk > xk)
+        for(float y = y0, x = x0; (int)(y+0.5f) != (int)(y1+0.5f); y+= sign(y1-y0))
+        {   
+            x = yk*(y - y1) + x1;
+            setValueOfBuffer((int)(x+0.5f),(int)(y+0.5f),buffer);
         }
-    }
     else
-    {
-        for(float y = y0, x = 0; y != y1; y++)
+        for(float y = y0, x = x0; (int)(x+0.5f) != (int)(x1+0.5f); x+= sign(x1-x0))
         {
-            
-            x = (yk*(y-y1) + x1);
-            printf("in draw line %f , %f \n",x,y);
-            setValueOfBuffer((int)x,(int)y,buffer);
+            y = xk*(x - x1) + y1;
+            setValueOfBuffer((int)(x+0.5f),(int)(y+0.5f),buffer);
         }
-    }
-
-
+        //y = (xk*(x-x1) + y1);
+        //x = (yk*(y-y1) + x1);
 }
 
 void clearBuffer(int size, char* buffer)
@@ -164,19 +159,26 @@ void clearBuffer(int size, char* buffer)
     for(int i = 0; i < size; i++)
     {
         buffer[i] = ' ';
+        if(i%(ScreenWidth+1) == ScreenWidth) buffer[i] = '\n';
+        
     }
 }
 
 void setValueOfBuffer(int x, int y, char* buffer)
 {
     if(x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
-    buffer[y*ScreenWidth+x] = '#';
+    buffer[y*(ScreenWidth+1)+x] = '#';
 }
 
 void drawBuffer(int w, int h, char* buffer)
 {
     system("clear");
-    int i = 0;
+    for(int i = 0; i <(w+1)*h; i++)
+    {
+        printf("%c",buffer[i]);
+    }
+    
+    /*int i = 0;
     for(int y = 0; y < h; y++)
     {
         printf("|");
@@ -187,7 +189,7 @@ void drawBuffer(int w, int h, char* buffer)
         }
         printf("|");
         printf("\n"); 
-    }
+    }*/
 }
 
 void printVec4(Vec4*vec)
