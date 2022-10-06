@@ -11,7 +11,7 @@
 #define ScreenHeight 64
 #define PI 3.142f
 
-const int BufferSize = ScreenWidth*ScreenHeight;
+const int BufferSize = (ScreenWidth+1)*ScreenHeight;
 
 void setValueOfBuffer(int x, int y, char*buffer);
 void drawBuffer(int w, int h, char* buffer);
@@ -82,9 +82,9 @@ int main()
             transformVec3( &tri.p[1],&triRot.p[1],&rotationMatrix);
             transformVec3( &tri.p[2],&triRot.p[2],&rotationMatrix);
 
-            triRot.p[0].z += 15;
-            triRot.p[1].z += 15;
-            triRot.p[2].z += 15;
+            triRot.p[0].z += 20;
+            triRot.p[1].z += 20;
+            triRot.p[2].z += 20;
 
             projectionMatrixCalc(&triRot.p[0],&triP.p[0],&ppm);
             projectionMatrixCalc(&triRot.p[1],&triP.p[1],&ppm);
@@ -111,7 +111,7 @@ int main()
             drawLine(triP.p[1].x,triP.p[1].y,triP.p[2].x,triP.p[2].y,ScreenBuffer);
             drawLine(triP.p[0].x,triP.p[0].y,triP.p[1].x,triP.p[1].y,ScreenBuffer);
 
-        }
+        } 
     
     //drawLine(6,0,6,10,ScreenBuffer);
     drawBuffer(ScreenWidth,ScreenHeight,ScreenBuffer);
@@ -174,19 +174,26 @@ void clearBuffer(int size, char* buffer)
     for(int i = 0; i < size; i++)
     {
         buffer[i] = ' ';
+        if(i%(ScreenWidth+1) == ScreenWidth) buffer[i] = '\n';
+        
     }
 }
 
 void setValueOfBuffer(int x, int y, char* buffer)
 {
     if(x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
-    buffer[y*ScreenWidth+x] = '#';
+    buffer[y*(ScreenWidth+1)+x] = '#';
 }
 
 void drawBuffer(int w, int h, char* buffer)
 {
     system("clear");
-    int i = 0;
+    for(int i = 0; i <(w+1)*h; i++)
+    {
+        printf("%c",buffer[i]);
+    }
+    
+    /*int i = 0;
     for(int y = 0; y < h; y++)
     {
         printf("|");
@@ -197,7 +204,7 @@ void drawBuffer(int w, int h, char* buffer)
         }
         printf("|");
         printf("\n"); 
-    }
+    }*/
 }
 
 void printVec4(Vec4*vec)
