@@ -192,19 +192,6 @@ void drawBuffer(int w, int h, char* buffer)
     {
         printf("%c",buffer[i]);
     }
-    
-    /*int i = 0;
-    for(int y = 0; y < h; y++)
-    {
-        printf("|");
-         for(int x = 0; x < w; x++)
-        {
-            printf("%c",buffer[i]);
-            i++;
-        }
-        printf("|");
-        printf("\n"); 
-    }*/
 }
 
 void printVec4(Vec4*vec)
